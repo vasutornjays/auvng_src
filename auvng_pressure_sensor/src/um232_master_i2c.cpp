@@ -724,7 +724,9 @@ int main(int argc, char *argv[])
 	
 	bSucceed = SendAddrAndCheckACK(SlaveAddr, FALSE);   // FALSE = WRITE Send the device address 0x22 wr (I2C = 0x44) 
 	bSucceed = SendByteAndCheckACK(0x1E);				// RESET Slave Device
-	SetI2CStop();										// Send the stop condition
+	SetI2CStop();
+
+	usleep(10000);										// Send the stop condition
 
 	if(bSucceed == FALSE){
 		printf("reset device fialed\n");
@@ -776,45 +778,53 @@ int main(int argc, char *argv[])
 		printf("cant read pressure offset\n");
 	}
 
-	SetI2CLinesIdle();
-	SetI2CStart();
-	bSucceed = SendAddrAndCheckACK(SlaveAddr, FALSE);
-	bSucceed = SendByteAndCheckACK(0x46);
-	SetI2CStop();
+	for(;;){
+		SetI2CLinesIdle();
+		SetI2CStart();
+		bSucceed = SendAddrAndCheckACK(SlaveAddr, FALSE);
+		bSucceed = SendByteAndCheckACK(0x46);
+		SetI2CStop();
+		if(bSucceed == FALSE){
+			printf("cant write 0x46 1\n");
+		}
 
-	SetI2CLinesIdle();
-	SetI2CStart();
-	bSucceed = SendAddrAndCheckACK(SlaveAddr, FALSE);
-	bSucceed = SendByteAndCheckACK(0x00);
-	SetI2CStop();
+		usleep(20000);
 
-	if(bSucceed == FALSE){
-		printf("cant read dataaa 1\n");
+		SetI2CLinesIdle();
+		SetI2CStart();
+		bSucceed = SendAddrAndCheckACK(SlaveAddr, FALSE);
+		bSucceed = SendByteAndCheckACK(0x00);
+		SetI2CStop();
+
+		if(bSucceed == FALSE){
+			printf("cant write 0x00\n");
+		}
+
+		SetI2CLinesIdle();								// Set idle line condition as part of repeated start
+		SetI2CStart();									// Send the start condition as part of repeated start
+		bSucceed = SendAddrAndCheckACK(SlaveAddr, TRUE);
+		if(bSucceed == FALSE){
+			printf("cant read dataaa\n");
+		}
+		Read3BytesAndSendNAK();
+		if(bSucceed == FALSE){
+			printf("cant read 3 dataaa\n");
+		}
+		SetI2CStop();								// Send the stop condition
+
+		// if(bSucceed == TRUE){
+		// 	printf("cant read dataaa");
+		// }
+
+		printf("%x,%x,%x \n",ByteDataRead[0],ByteDataRead[1],ByteDataRead[2]);
+
+		PressureData = ByteDataRead[0];
+		PressureData = PressureData << 8 | ByteDataRead[1];
+		PressureData = PressureData << 8 | ByteDataRead[2];
+
+		printf("Pressure Data: %d\n",PressureData);
 	}
-
-	SetI2CLinesIdle();								// Set idle line condition as part of repeated start
-	SetI2CStart();									// Send the start condition as part of repeated start
-	bSucceed = SendAddrAndCheckACK(SlaveAddr, TRUE);
-	if(bSucceed == FALSE){
-		printf("cant read dataaa\n");
-	}
-	Read3BytesAndSendNAK();
-	if(bSucceed == FALSE){
-		printf("cant read 3 dataaa\n");
-	}
-	SetI2CStop();								// Send the stop condition
-
-	// if(bSucceed == TRUE){
-	// 	printf("cant read dataaa");
-	// }
-
-	printf("%x,%x,%x \n",ByteDataRead[0],ByteDataRead[1],ByteDataRead[2]);
-
-	PressureData = ByteDataRead[0];
-	PressureData = PressureData << 8 | ByteDataRead[1];
-	PressureData = PressureData << 8 | ByteDataRead[2];
-
-	printf("Pressure Data: %d\n",PressureData);
+	
 
 	
 
