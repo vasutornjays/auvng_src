@@ -735,7 +735,7 @@ u_int16_t ReadPROM(u_int8_t promAddressOffset) {
 	SetI2CLinesIdle();
 	SetI2CStart();
 	bSucceed = SendAddrAndCheckACK(MS5837_ADDR, FALSE);
-	bSucceed = SendByteAndCheckACK(MS5837_PROM_READ + (u_int8_t)promAddressOffset);
+	bSucceed = SendByteAndCheckACK(MS5837_PROM_READ + promAddressOffset);
 	SetI2CStop();
 
 	SetI2CLinesIdle();								// Set idle line condition as part of repeated start
