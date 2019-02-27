@@ -5,32 +5,11 @@
 
 #define MS5837_CONVERT_D1_8192    0x4A
 #define MS5837_CONVERT_D2_8192    0x5A
-#define OFFSET_PRESSURE           101300
 
-
-u_int16_t g_p_sens;
-u_int16_t g_p_offset;
-u_int16_t g_tcs;
-u_int16_t g_tco;
-u_int16_t g_t_ref;
-u_int16_t g_t_sens;
-
-u_int16_t C[8];
-u_int32_t TEMP;
-u_int32_t P;
-u_int8_t _model;
-
-int32_t dT = 0;
-int64_t SENS = 0;
-int64_t OFF = 0;
-int32_t SENSi = 0;
-int32_t OFFi = 0;  
-int32_t Ti = 0;
-int64_t OFF2 = 0;
-int64_t SENS2 = 0;
-u_int32_t D1, D2;
-
-float fluidDensity = 1029;
+u_int16_t c[8];
+double pressure;
+float fluid_density = 1029;
+int offset_pressure = 101300;
 
 uint8_t Crc4(uint16_t n_prom[]) {
 	uint16_t n_rem = 0;
@@ -60,18 +39,29 @@ uint8_t Crc4(uint16_t n_prom[]) {
 
 double CalculateDepth(){
 
+    int32_t dT = 0;
+    int64_t SENS = 0;
+    int64_t OFF = 0;
+    int32_t SENSi = 0;
+    int32_t OFFi = 0;  
+    int32_t Ti = 0;
+    int64_t OFF2 = 0;
+    int64_t SENS2 = 0;
+    u_int32_t D1, D2;
+    u_int32_t TEMP;
+    u_int32_t P;
 
     D1 = ReadADC(MS5837_CONVERT_D1_8192);
     D2 = ReadADC(MS5837_CONVERT_D2_8192);
 	
 	// Terms called
-	dT = D2-uint32_t(C[5])*256l;
-	SENS = int64_t(C[1])*32768l+(int64_t(C[3])*dT)/256l;
-	OFF = int64_t(C[2])*65536l+(int64_t(C[4])*dT)/128l;
+	dT = D2-uint32_t(c[5])*256l;
+	SENS = int64_t(c[1])*32768l+(int64_t(c[3])*dT)/256l;
+	OFF = int64_t(c[2])*65536l+(int64_t(c[4])*dT)/128l;
 	P = (D1*SENS/(2097152l)-OFF)/(8192l);
 	
 	// Temp conversion
-	TEMP = 2000l+int64_t(dT)*C[6]/8388608LL;
+	TEMP = 2000l+int64_t(dT)*c[6]/8388608LL;
 	
 
     if((TEMP/100)<20){         //Low temp
@@ -96,9 +86,9 @@ double CalculateDepth(){
 	TEMP = (TEMP-Ti);
 	P = (((D1*SENS2)/2097152l-OFF2)/8192l)/10;
 
-    double pressure = P * 100.0f;
+    pressure = P * 100.0f;
     //double pressure = P * 0.001f; 
-    return (pressure - OFFSET_PRESSURE)/(fluidDensity*9.80665);
+    return (pressure - offset_pressure)/(fluid_density*9.80665);
     //return (pressure - 1.0) ;
 }
 
@@ -108,6 +98,9 @@ int main(int argc, char **argv){
 
     ros::init(argc, argv, "pressure_sensor_pub");
     ros::NodeHandle n;
+
+    n.param("offset_pressure", offset_pressure, 101300);
+    n.param("fluid_density", fluid_density, 1029);
 
     ros::Publisher odom_pub = n.advertise<nav_msgs::Odometry>("odom", 50);
 
@@ -124,12 +117,12 @@ int main(int argc, char **argv){
 
     for ( u_int8_t i = 0 ; i < 7 ; i++ ) {
         u_int16_t temp = ReadPROM(i*2);
-		C[i] = temp;
-        printf("C[%d] : %d\n",i, C[i]);
+		c[i] = temp;
+        printf("c[%d] : %d\n",i, c[i]);
 	}
 
-    uint8_t crcRead = C[0] >> 12;
-    uint8_t crcCalculated = Crc4(C);
+    uint8_t crcRead = c[0] >> 12;
+    uint8_t crcCalculated = Crc4(c);
 
     if ( crcCalculated == crcRead ) {
         printf("###### Initialization success ######\n"); // Initialization success
@@ -147,7 +140,8 @@ int main(int argc, char **argv){
         odom.header.frame_id = "odom";
 
         odom.pose.pose.position.z = depth;
-        printf("depth: %f\n", depth);
+        printf("Pressure: %f Pa, Depth: %f m\n", pressure, depth);
+        //ROS_INFO("Pressure: %f Pa, Depth: %f m\n", pressure, depth);
         odom_pub.publish(odom);
 
         r.sleep();

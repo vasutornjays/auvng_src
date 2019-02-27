@@ -1,0 +1,4 @@
+<launch>
+  <node name="pressure_sensor" pkg="auvng_pressure_sensor" type="auvng_pressure_sensor_node" output="screen"/>
+  <param name="offset_pressure" value="101300"/>
+</launch>
