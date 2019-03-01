@@ -100,9 +100,9 @@ int main(int argc, char **argv){
     ros::NodeHandle n;
 
     n.param("offset_pressure", offset_pressure, 101300);
-    n.param("fluid_density", fluid_density, 1029);
+    n.param("fluid_density", fluid_density, (float)1029);
 
-    ros::Publisher odom_pub = n.advertise<nav_msgs::Odometry>("odom", 50);
+    ros::Publisher odom_pub = n.advertise<nav_msgs::Odometry>("pressure/odom", 50);
 
     int dt;
     int temp;
