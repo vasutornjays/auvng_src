@@ -1,7 +1,7 @@
 # The frequency, in Hz, at which the filter will output a position estimate. Note that the filter will not begin
 # computation until it receives at least one message from one of the inputs. It will then run continuously at the
 # frequency specified here, regardless of whether it receives more measurements. Defaults to 30 if unspecified.
-frequency: 30
+frequency: 100
 
 # The period, in seconds, after which we consider a sensor to have timed out. In this event, we carry out a predict
 # cycle on the EKF without correcting it. This parameter can be thought of as the minimum frequency with which the
@@ -30,7 +30,7 @@ print_diagnostics: true
 # Debug settings. Not for the faint of heart. Outputs a ludicrous amount of information to the file specified by
 # debug_out_file. I hope you like matrices! Please note that setting this to true will have strongly deleterious
 # effects on the performance of the node. Defaults to false if unspecified.
-debug: false
+debug: true
 
 # Defaults to "robot_localization_debug.txt" if unspecified. Please specify the full path.
 debug_out_file: ~/ros_debug/ukf_debug.txt
@@ -110,27 +110,28 @@ odom0_relative: false
 # required. Data is specified at the level of pose and twist variables, rather than for each variable in isolation.
 # For messages that have both pose and twist data, the parameter specifies to which part of the message we are applying
 # the thresholds.
-odom0_pose_rejection_threshold: 5
-odom0_twist_rejection_threshold: 1
+#odom0_pose_rejection_threshold: 5
+#odom0_twist_rejection_threshold: 1
 
 
 imu0: imu/data
 imu0_config: [false, false, false,
-               true,  true,  true,
-               false, false, false,
-               true,  true,  true,
-               true,  true,  true]
+              true,  true,  true,
+              false, false, false,
+              false, false, false,
+              false, false, false]
 imu0_nodelay: false
 imu0_differential: false
-imu0_relative: true
+imu0_relative: false
 imu0_queue_size: 50
-imu0_pose_rejection_threshold: 0.8                 # Note the difference in parameter names
-imu0_twist_rejection_threshold: 0.8                #
-imu0_linear_acceleration_rejection_threshold: 0.8  #
+#imu0_pose_rejection_threshold: 0.8                 # Note the difference in parameter names
+#imu0_twist_rejection_threshold: 0.8                #
+#imu0_linear_acceleration_rejection_threshold: 0.8  #
 
 # # [ADVANCED] Some IMUs automatically remove acceleration due to gravity, and others don't. If yours doesn't, please set
 # # this to true, and *make sure* your data conforms to REP-103, specifically, that the data is in ENU frame.
 imu0_remove_gravitational_acceleration: true
+imu0_differential: false  
 
 # [ADVANCED]  The EKF and UKF models follow a standard predict/correct cycle. During prediction, if there is no
 # acceleration reference, the velocity at time t+1 is simply predicted to be the same as the velocity at time t. During
@@ -192,29 +193,29 @@ process_noise_covariance: [0.05, 0,    0,    0,    0,    0,    0,     0,     0, 
 # question. Users should take care not to use large values for variables that will not be measured directly. The values
 # are ordered as x, y, z, roll, pitch, yaw, vx, vy, vz, vroll, vpitch, vyaw, ax, ay, az. Defaults to the matrix below
 #if unspecified.
-initial_estimate_covariance: [1e-9, 0,    0,    0,    0,    0,    0,    0,    0,    0,     0,     0,     0,    0,    0,
-                              0,    1e-9, 0,    0,    0,    0,    0,    0,    0,    0,     0,     0,     0,    0,    0,
-                              0,    0,    1e-9, 0,    0,    0,    0,    0,    0,    0,     0,     0,     0,    0,    0,
-                              0,    0,    0,    1e-9, 0,    0,    0,    0,    0,    0,     0,     0,     0,    0,    0,
-                              0,    0,    0,    0,    1e-9, 0,    0,    0,    0,    0,     0,     0,     0,    0,    0,
-                              0,    0,    0,    0,    0,    1e-9, 0,    0,    0,    0,     0,     0,     0,    0,    0,
-                              0,    0,    0,    0,    0,    0,    1e-9, 0,    0,    0,     0,     0,     0,    0,    0,
-                              0,    0,    0,    0,    0,    0,    0,    1e-9, 0,    0,     0,     0,     0,    0,    0,
-                              0,    0,    0,    0,    0,    0,    0,    0,    1e-9, 0,     0,     0,     0,    0,    0,
-                              0,    0,    0,    0,    0,    0,    0,    0,    0,    1e-9,  0,     0,     0,    0,    0,
-                              0,    0,    0,    0,    0,    0,    0,    0,    0,    0,     1e-9,  0,     0,    0,    0,
-                              0,    0,    0,    0,    0,    0,    0,    0,    0,    0,     0,     1e-9,  0,    0,    0,
-                              0,    0,    0,    0,    0,    0,    0,    0,    0,    0,     0,     0,     1e-9, 0,    0,
-                              0,    0,    0,    0,    0,    0,    0,    0,    0,    0,     0,     0,     0,    1e-9, 0,
-                              0,    0,    0,    0,    0,    0,    0,    0,    0,    0,     0,     0,     0,    0,    1e-9]
+# initial_estimate_covariance: [1e-9, 0,    0,    0,    0,    0,    0,    0,    0,    0,     0,     0,     0,    0,    0,
+#                               0,    1e-9, 0,    0,    0,    0,    0,    0,    0,    0,     0,     0,     0,    0,    0,
+#                               0,    0,    1e-9, 0,    0,    0,    0,    0,    0,    0,     0,     0,     0,    0,    0,
+#                               0,    0,    0,    1e-9, 0,    0,    0,    0,    0,    0,     0,     0,     0,    0,    0,
+#                               0,    0,    0,    0,    1e-9, 0,    0,    0,    0,    0,     0,     0,     0,    0,    0,
+#                               0,    0,    0,    0,    0,    1e-9, 0,    0,    0,    0,     0,     0,     0,    0,    0,
+#                               0,    0,    0,    0,    0,    0,    1e-9, 0,    0,    0,     0,     0,     0,    0,    0,
+#                               0,    0,    0,    0,    0,    0,    0,    1e-9, 0,    0,     0,     0,     0,    0,    0,
+#                               0,    0,    0,    0,    0,    0,    0,    0,    1e-9, 0,     0,     0,     0,    0,    0,
+#                               0,    0,    0,    0,    0,    0,    0,    0,    0,    1e-9,  0,     0,     0,    0,    0,
+#                               0,    0,    0,    0,    0,    0,    0,    0,    0,    0,     1e-9,  0,     0,    0,    0,
+#                               0,    0,    0,    0,    0,    0,    0,    0,    0,    0,     0,     1e-9,  0,    0,    0,
+#                               0,    0,    0,    0,    0,    0,    0,    0,    0,    0,     0,     0,     1e-9, 0,    0,
+#                               0,    0,    0,    0,    0,    0,    0,    0,    0,    0,     0,     0,     0,    1e-9, 0,
+#                               0,    0,    0,    0,    0,    0,    0,    0,    0,    0,     0,     0,     0,    0,    1e-9]
 
 # [ADVANCED, UKF ONLY] The alpha and kappa variables control the spread of the sigma points. Unless you are familiar
 # with UKFs, it's probably a good idea to leave these alone.
 # Defaults to 0.001 if unspecified.
-alpha: 0.001
+alpha: 0.01
 # Defaults to 0 if unspecified.
-kappa: 0
+kappa: 0.1
 
 # [ADVANCED, UKF ONLY] The beta variable relates to the distribution of the state vector. Again, it's probably best to
 # leave this alone if you're uncertain. Defaults to 2 if unspecified.
-beta: 2
+beta: 2.2
