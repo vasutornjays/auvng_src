@@ -11,5 +11,5 @@
 
     <include file="$(find auvng_pressure_sensor)/launch/auvng_pressure_sensor.launch"/> -->
     <include file="$(find microstrain_3dm_gx5_45)/launch/microstrain_25.launch"/>
-
+    <include file="$(find hg_ros_pololu)/launch/maestro8.launch"/>
 </launch>
