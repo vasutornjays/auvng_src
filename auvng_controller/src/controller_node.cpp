@@ -8,7 +8,7 @@ double K_p_x;
 
 ros::Publisher pub;
 
-void callback(nav_msgs::Odometry odom)
+void calculate_error_callback(nav_msgs::Odometry odom)
 {
     double current_x = odom.pose.pose.position.x;
     double current_y = odom.pose.pose.position.y;
@@ -42,7 +42,7 @@ int main(int argc, char **argv)
     dynamic_reconfigure::Server<auvng_controller::pid_paramConfig> server;
     dynamic_reconfigure::Server<auvng_controller::pid_paramConfig>::CallbackType f;
 
-    ros::Subscriber sub = n.subscribe("auvng/state", 1000, callback);
+    ros::Subscriber sub = n.subscribe("auvng/state", 1000, calculate_error_callback);
     f = boost::bind(&dynamicCallback, _1, _2);
     server.setCallback(f);
 
