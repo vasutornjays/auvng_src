@@ -1,4 +1,7 @@
 #include <auvng_controller/pid.h>
+#include <auvng_controller/TextTable.h>
+#include <iostream>
+#include <sstream>
 ros::Publisher pub;
 
 double K_p[6] = {0,0,0,0,0,0};
@@ -46,6 +49,63 @@ void current_state_callback(nav_msgs::Odometry odom)
     current_state[5] = yaw;
 
     // printf("get_new_state \n");
+}
+
+void print_state(){
+
+    TextTable t( '-', '|', '+' );
+
+        t.add( "Controller" );
+        if(control_enabled){
+            t.add( "ON" );
+        } else {
+            t.add( "OFF" );
+        }
+        t.add( "" );
+        t.add( "" );
+        t.add( "" );
+        t.add( "" );
+        t.add( "" );
+        t.endOfRow();
+
+        t.add( "" );
+        t.add( "X" );
+        t.add( "Y" );
+        t.add( "Z" );
+        t.add( "ROLL" );
+        t.add( "PITCH" );
+        t.add( "YAW" );
+        t.endOfRow();
+
+        t.add( "Goal" );
+        for(int i = 0;i < 6; i++){
+            std::string varAsString = std::to_string(set_point[i]);
+            t.add(varAsString);
+        }
+        t.endOfRow();
+
+        t.add( "Current" );
+        for(int i = 0;i < 6; i++){
+            std::string varAsString = std::to_string(current_state[i]);
+            t.add(varAsString);
+        }
+        t.endOfRow();
+
+        t.add( "Error" );
+        for(int i = 0;i < 6; i++){
+            std::string varAsString = std::to_string(error[0][i]);
+            t.add(varAsString);
+        }
+        t.endOfRow();
+
+        t.add( "Control" );
+        for(int i = 0;i < 6; i++){
+            std::string varAsString = std::to_string(control_effort[i]);
+            t.add(varAsString);
+        }
+        t.endOfRow();
+
+        std::cout << t;
 }
 
 void enable_control_callback(std_msgs::Bool control_enable_msg)
@@ -100,42 +160,14 @@ int main(int argc, char **argv)
 
     ros::Rate rate(10);
 
+    std::ostringstream strs;
+
     while (n.ok())
     {   
         calculate_error();
         do_calculate();
-
-        if(control_enabled){
-            printf("######################################## Control is : ON ############################################");
-        } else {
-            printf("######################################## Control is : OFF ############################################");
-        }
-
-
-        printf("set_point: ");
-        for(int i = 0;i < 6; i++){
-            printf("%lf ",  set_point[i]);
-        }
-        printf("\n");
         
-        printf("current_state: ");
-        for(int i = 0;i < 6; i++){
-            printf("%lf ",  current_state[i]);
-        }
-        printf("\n");
-        
-        printf("error: ");
-        for(int i = 0;i < 6; i++){
-            printf("%lf ",  error[0][i]);
-        }
-        printf("\n");
-
-        printf("control_effort: ");
-        for(int i = 0;i < 6; i++){
-            printf("%lf ",  control_effort[i]);
-        }
-        printf("\n");
-
+        print_state();
 
         ros::spinOnce();
         rate.sleep();
