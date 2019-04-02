@@ -38,7 +38,7 @@ void current_state_callback(nav_msgs::Odometry odom)
                               odom.pose.pose.orientation.z,
                               odom.pose.pose.orientation.w);
     tfScalar roll, pitch, yaw;
-    tf::Matrix3x3(quaternion).getRPY(roll, pitch, yaw);
+    tf::Matrix3x3(quaternion).getRPY(pitch, roll, yaw);
     // printf("current :: roll: %lf   pitch: %lf    yaw: %lf \n", (roll*180)/3.14, (pitch*180)/3.14, (yaw*180)/3.14);
 
     current_state[0] = odom.pose.pose.position.x;
@@ -46,7 +46,7 @@ void current_state_callback(nav_msgs::Odometry odom)
     current_state[2] = odom.pose.pose.position.z;
     current_state[3] = roll;
     current_state[4] = pitch;
-    current_state[5] = yaw;
+    current_state[5] = -yaw;
 
     // printf("get_new_state \n");
 }
