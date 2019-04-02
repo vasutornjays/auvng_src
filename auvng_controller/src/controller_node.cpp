@@ -147,7 +147,7 @@ int main(int argc, char **argv)
     ros::init(argc, argv, "auvng_controller");
     ros::NodeHandle n;
 
-    pub = n.advertise<std_msgs::Float64>("z_val", 1000);
+    pub = n.advertise<geometry_msgs::TwistStamped>("auvng/control_torque", 1000);
 
     dynamic_reconfigure::Server<auvng_controller::pid_paramConfig> server;
     dynamic_reconfigure::Server<auvng_controller::pid_paramConfig>::CallbackType f;
@@ -166,8 +166,18 @@ int main(int argc, char **argv)
     {   
         calculate_error();
         do_calculate();
-        
         print_state();
+
+        geometry_msgs::TwistStamped control_torque;
+
+        control_torque.twist.linear.x = control_effort[0];
+        control_torque.twist.linear.y = control_effort[1];
+        control_torque.twist.linear.z = control_effort[2];
+        control_torque.twist.angular.x = control_effort[3];
+        control_torque.twist.angular.y = control_effort[4];
+        control_torque.twist.angular.z = control_effort[5];
+
+        pub.publish(control_torque);
 
         ros::spinOnce();
         rate.sleep();

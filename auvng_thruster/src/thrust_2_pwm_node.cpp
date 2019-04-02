@@ -44,16 +44,15 @@ void callback(auvng_thruster::thruster_torque t)
     }
 
     pub.publish(pwm);
-    ROS_INFO("pwm[0]: [%d]", pwm.pwm[0]);
 }
 
 int main(int argc, char **argv)
 {
-    ros::init(argc, argv, "auvng_controller");
+    ros::init(argc, argv, "auvng_thruster");
     ros::NodeHandle n;
 
     pub = n.advertise<hg_ros_pololu::Pwm>("pwm", 100);
-    ros::Subscriber sub = n.subscribe("thruster_torque", 1000, callback);
+    ros::Subscriber sub = n.subscribe("auvng/thruster_torque", 1000, callback);
 
     ROS_INFO("Spinning node");
     ros::spin();

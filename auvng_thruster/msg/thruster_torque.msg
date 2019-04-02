@@ -2,4 +2,4 @@
 
 Header header 
 
-float64[] thruster_torque
+float64[8] thruster_torque
