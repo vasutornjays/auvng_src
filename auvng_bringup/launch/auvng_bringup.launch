@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<launch>
+	<arg name="name" default="auv"/>
+    <arg name="model" default="$(find auvng_description)/urdf/auvng_description.urdf.xacro"/>
+    <arg name="tf_prefix" default="$(optenv ROS_NAMESPACE)"/>
+
+    <param name="robot_description" command="$(find xacro)/xacro.py '$(arg model)'" />
+    <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher" output="screen" >
+        <param name="publish_frequency" type="double" value="50.0" />
+  	</node>
+
+    <include file="$(find auvng_pressure_sensor)/launch/auvng_pressure_sensor.launch"/> -->
+    <include file="$(find microstrain_3dm_gx5_45)/launch/microstrain_25.launch"/>
+    <!-- <include file="$(find hg_ros_pololu)/launch/maestro8.launch"/> -->
+</launch>

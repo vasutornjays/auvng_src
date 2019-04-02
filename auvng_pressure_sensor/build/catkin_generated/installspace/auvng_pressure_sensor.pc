@@ -1,0 +1,8 @@
+prefix=/usr/local
+
+Name: auvng_pressure_sensor
+Description: Description of auvng_pressure_sensor
+Version: 0.0.0
+Cflags: 
+Libs: -L/usr/local/lib 
+Requires: 

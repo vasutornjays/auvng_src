@@ -1,0 +1,4 @@
+<launch>
+    <node pkg="auvng_thruster" type="thruster_mapper.py" name="thruster_mapper" output="screen">
+    </node>
+</launch>

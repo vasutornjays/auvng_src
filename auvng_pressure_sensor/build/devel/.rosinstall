@@ -1,0 +1,2 @@
+- setup-file:
+    local-name: /home/vasutornj/catkin_ws/src/auvng_pressure_sensor/build/devel/setup.sh
