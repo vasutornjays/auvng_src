@@ -36,14 +36,14 @@ void current_state_callback(nav_msgs::Odometry odom)
                               odom.pose.pose.orientation.w);
     tfScalar roll, pitch, yaw;
     tf::Matrix3x3(quaternion).getRPY(roll, pitch, yaw);
-    printf("current :: roll: %lf   pitch: %lf    yaw: %lf \n", (roll*180)/3.14, (pitch*180)/3.14, (yaw*180)/3.14);
+    // printf("current :: roll: %lf   pitch: %lf    yaw: %lf \n", (roll*180)/3.14, (pitch*180)/3.14, (yaw*180)/3.14);
 
     current_state[0] = odom.pose.pose.position.x;
-    current_state[1] = odom.pose.pose.position.x;
-    current_state[2] = odom.pose.pose.position.x;
+    current_state[1] = odom.pose.pose.position.y;
+    current_state[2] = odom.pose.pose.position.z;
     current_state[3] = roll;
     current_state[4] = pitch;
-    current_state[0] = yaw;
+    current_state[5] = yaw;
 
     // printf("get_new_state \n");
 }
@@ -98,11 +98,44 @@ int main(int argc, char **argv)
     f = boost::bind(&dynamicCallback, _1, _2);
     server.setCallback(f);
 
-    ros::Rate rate(20);
+    ros::Rate rate(10);
 
     while (n.ok())
-    {
+    {   
+        calculate_error();
         do_calculate();
+
+        if(control_enabled){
+            printf("######################################## Control is : ON ############################################");
+        } else {
+            printf("######################################## Control is : OFF ############################################");
+        }
+
+
+        printf("set_point: ");
+        for(int i = 0;i < 6; i++){
+            printf("%lf ",  set_point[i]);
+        }
+        printf("\n");
+        
+        printf("current_state: ");
+        for(int i = 0;i < 6; i++){
+            printf("%lf ",  current_state[i]);
+        }
+        printf("\n");
+        
+        printf("error: ");
+        for(int i = 0;i < 6; i++){
+            printf("%lf ",  error[0][i]);
+        }
+        printf("\n");
+
+        printf("control_effort: ");
+        for(int i = 0;i < 6; i++){
+            printf("%lf ",  control_effort[i]);
+        }
+        printf("\n");
+
 
         ros::spinOnce();
         rate.sleep();
