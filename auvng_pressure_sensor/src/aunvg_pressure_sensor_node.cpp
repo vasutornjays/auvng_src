@@ -9,7 +9,7 @@
 u_int16_t c[8];
 double pressure;
 float fluid_density = 1029;
-int offset_pressure = 101300;
+int offset_pressure = 106700;
 
 uint8_t Crc4(uint16_t n_prom[]) {
 	uint16_t n_rem = 0;
