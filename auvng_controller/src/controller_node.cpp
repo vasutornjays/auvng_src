@@ -15,6 +15,7 @@ double error[3][6] = {{0,0,0,0,0,0},
 double div_error[6] = {0,0,0,0,0,0};
 double int_error[6] = {0,0,0,0,0,0};
 double control_effort[6] = {0,0,0,0,0,0};
+double joy_effort[2] = {0,0};
 bool control_enabled = 0;
 
 
@@ -99,7 +100,11 @@ void print_state(){
         t.endOfRow();
 
         t.add( "Control" );
-        for(int i = 0;i < 6; i++){
+        for(int i = 0;i <= 1; i++){
+            std::string varAsString = std::to_string(joy_effort[i]);
+            t.add(varAsString);
+        }
+        for(int i = 2;i < 6; i++){
             std::string varAsString = std::to_string(control_effort[i]);
             t.add(varAsString);
         }
@@ -112,6 +117,12 @@ void enable_control_callback(std_msgs::Bool control_enable_msg)
 {
     control_enabled = control_enable_msg.data;
     // printf("get_control_enable \n");
+}
+
+void joy_callback(geometry_msgs::TwistStamped joy_twist)
+{
+    joy_effort[0] = joy_twist.twist.linear.x;
+    joy_effort[1] = joy_twist.twist.linear.y;
 }
 
 void dynamicCallback(auvng_controller::pid_paramConfig &config, uint32_t level)
@@ -152,6 +163,7 @@ int main(int argc, char **argv)
     dynamic_reconfigure::Server<auvng_controller::pid_paramConfig> server;
     dynamic_reconfigure::Server<auvng_controller::pid_paramConfig>::CallbackType f;
 
+    ros::Subscriber joy_sub = n.subscribe("joy/cmd_vel", 1000, joy_callback);
     ros::Subscriber current_sub = n.subscribe("auvng/state", 1000, current_state_callback);
     ros::Subscriber set_point_sub = n.subscribe("auvng/set_point", 1000, set_point_callback);
     ros::Subscriber enable_control = n.subscribe("auvng/enable_control", 1000, enable_control_callback);
@@ -166,16 +178,21 @@ int main(int argc, char **argv)
     {   
         calculate_error();
         do_calculate();
-        print_state();
 
         geometry_msgs::TwistStamped control_torque;
 
-        control_torque.twist.linear.x = control_effort[0];
-        control_torque.twist.linear.y = control_effort[1];
+        if(!control_enabled){
+            joy_effort[0] = 0.0;
+            joy_effort[1] = 0.0;
+        }
+        control_torque.twist.linear.x = joy_effort[0];
+        control_torque.twist.linear.y = joy_effort[1];
         control_torque.twist.linear.z = control_effort[2];
         control_torque.twist.angular.x = control_effort[3];
         control_torque.twist.angular.y = control_effort[4];
         control_torque.twist.angular.z = control_effort[5];
+
+        print_state();
 
         pub.publish(control_torque);
 
