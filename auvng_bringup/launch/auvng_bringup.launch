@@ -8,8 +8,30 @@
     <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher" output="screen" >
         <param name="publish_frequency" type="double" value="50.0" />
   	</node>
+    <remap from="/imu/data" to="auvng/sensor/imu"/>
+    <remap from="/pressure/odom" to="auvng/sensor/pressure"/>
 
-    <include file="$(find auvng_pressure_sensor)/launch/auvng_pressure_sensor.launch"/> -->
+    
     <include file="$(find microstrain_3dm_gx5_45)/launch/microstrain_25.launch"/>
+    <include file="$(find auvng_pressure_sensor)/launch/auvng_pressure_sensor.launch"/>
+    <include file="$(find hg_ros_pololu)/launch/maestro8.launch"/>
+    
+    <!-- Run Control node  (wait 10 sec for bringup) -->
+    <arg name="state_node_start_delay" default="10.0" />
+    <node pkg="robot_localization" type="ukf_localization_node" name="ukf_se" clear_params="true" launch-prefix="bash -c 'sleep $(arg state_node_start_delay); $0 $@' ">
+    <rosparam command="load" file="$(find auvng_state)/params/auvng_ukf_param.yaml" />
+
+    <!--  Placeholder for output topic remapping
+    <remap from="odometry/filtered" to=""/>
+    <remap from="accel/filtered" to=""/>
+    -->
+    <remap from="odometry/filtered" to="auvng/state"/>
+    
+    </node>
+
+    <!-- Run Control node  (wait 5 sec for bringup) -->
+    <arg name="control_node_start_delay" default="15.0" />
+    <node pkg="auvng_controller" type="auvng_controller_node" name="auvng_controller" output="screen" launch-prefix="bash -c 'sleep $(arg control_node_start_delay); $0 $@' "> </node>
+    
     <!-- <include file="$(find hg_ros_pololu)/launch/maestro8.launch"/> -->
 </launch>

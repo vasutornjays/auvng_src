@@ -140,7 +140,7 @@ int main(int argc, char **argv){
         odom.header.frame_id = "odom";
 
         odom.pose.pose.position.z = depth;
-        printf("Pressure: %f Pa, Depth: %f m\n", pressure, depth);
+        //printf("Pressure: %f Pa, Depth: %f m\n", pressure, depth);
         //ROS_INFO("Pressure: %f Pa, Depth: %f m\n", pressure, depth);
         odom_pub.publish(odom);
 

@@ -1,4 +1,6 @@
 <launch>
     <node pkg="auvng_thruster" type="thruster_mapper.py" name="thruster_mapper" output="screen">
     </node>
+    <node pkg="auvng_thruster" type="auvng_thruster_node" name="pwm_lookup" output="screen">
+    </node>
 </launch>

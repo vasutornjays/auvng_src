@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+<launch>
+    <node pkg="auvng_controller" type="auvng_controller_node" name="auvng_controller" output="screen"> </node>
+</launch>
