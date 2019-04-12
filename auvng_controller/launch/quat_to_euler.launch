@@ -1,5 +1,0 @@
-<launch>
-    <node pkg="auvng_controller" type="quat_to_euler.py" name="kf_euler_angles">
-        <remap from="euler" to="kf/euler"/>
-    </node>
-</launch>
