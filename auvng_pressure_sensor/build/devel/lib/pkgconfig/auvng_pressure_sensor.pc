@@ -1,8 +1,0 @@
-prefix=/home/vasutornj/catkin_ws/src/auvng_pressure_sensor/build/devel
-
-Name: auvng_pressure_sensor
-Description: Description of auvng_pressure_sensor
-Version: 0.0.0
-Cflags: 
-Libs: -L/home/vasutornj/catkin_ws/src/auvng_pressure_sensor/build/devel/lib 
-Requires: 

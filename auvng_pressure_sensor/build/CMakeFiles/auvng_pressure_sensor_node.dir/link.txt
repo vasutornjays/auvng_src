@@ -1,1 +1,0 @@
-/usr/bin/c++  -g  -rdynamic CMakeFiles/auvng_pressure_sensor_node.dir/src/um232_master_i2c.cpp.o  -o devel/lib/auvng_pressure_sensor/auvng_pressure_sensor_node -lftd2xx 

@@ -1,0 +1,7 @@
+<launch>
+    <node pkg="auvng_monitor" type="quat_to_euler.py" name="euler_angles_transform">
+        <remap from="euler" to="auvng/euler_angle"/>
+    </node>
+
+    <node pkg="rqt_gui" type="rqt_gui" name="auvng_monitor"> </node>
+</launch>
